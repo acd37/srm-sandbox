@@ -1,5 +1,5 @@
-# Title
-Student SRM
+# Student SRM
+
 
 ## Contributors
 @acd37
