@@ -1,0 +1,520 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>UtahSRM Dashboard</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/app.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='images/blocku_small.png') }}">
+  <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+      <a class="navbar-brand" href="#"><img alt="UtahSRM" src="{{ url_for('static', filename='images/blocku.png') }}" height="50"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#u-nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+      <div class="collapse navbar-collapse justify-content-between" id="u-nav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/find_all">View Students</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/add-student">Add Student</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/permission_codes">Permission Codes</a>
+          </li>
+        </ul>
+
+      <a class="btn btn-primary btn-logout" href="/logout">Logout</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row nav-search">
+      <div class="search">
+        <form class="form-inline" method=POST action="{{ url_for('find_name')}}">
+          <div class="form-group">
+            <input type="text" class="form-control" id="name-input" name="name-input">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" type="submit">Find</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <div class="container-fluid">
+      <div class="row student-header">
+        <div class="col text-center">
+          <h1 class="student_name">{{current_student.first_name}} {{current_student.last_name}}</h1>
+          <a class="edit-link" id="delete-student" href="#" data-toggle="modal" data-target="#delete-modal">Delete student</a>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          {% with messages = get_flashed_messages() %} {% if messages %} {% for message in messages|reverse %}
+          <div id="add-student-alert" class="alert alert-dark alert-dismissable fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+          </div>
+          {% endfor %} {% endif %} {% endwith %}
+        </div>
+      </div>
+
+      <div class="row profile-row">
+        <div class="col-md-4">
+          <h2> Profile </h2>
+          <hr>
+          <h6> Major: {{current_student.major}} <a class="edit-link" id="edit-major" href="#" data-toggle="modal" data-target="#major-modal">Edit</a></h6>
+
+          <h6> Program Status: {{current_student.standing}} <a class="edit-link" id="edit-standing" href="#" data-toggle="modal" data-target="#standing-modal">Edit</a></h6>
+          <h6> Direct Admit: {{current_student.direct_admit}} <a class="edit-link" id="edit-direct" href="#" data-toggle="modal" data-target="#direct-modal">Edit</a></h6>
+          <h6> Transfer Student: {{current_student.transfer}} <a class="edit-link" id="edit-transfer" href="#" data-toggle="modal" data-target="#transfer-modal">Edit</a></h6>
+
+        </div>
+        <div class="col-md-4">
+          <h2> Contact </h2>
+          <hr>
+          <h6> Phone: {{current_student.phone}} <a class="edit-link" id="edit-phone" href="#" data-toggle="modal" data-target="#phone-modal">Edit</a></h6>
+          <h6> Email: {{current_student.email}} <a class="edit-link" id="edit-email" href="#" data-toggle="modal" data-target="#email-modal">Edit</a></h6>
+          <h6> uID: {{current_student.student_id}} <a class="edit-link" id="edit-uid" href="#" data-toggle="modal" data-target="#uid-modal">Edit</a></h6>
+
+        </div>
+        <div class="col-md-4">
+          <h2> Enrollment Information </h2>
+          <hr>
+          <h6> Enrolled in program: <span id="date_a">{{current_student.enrollment_date}}</span></h6>
+          <h6> Graduation: <span id="date_b">{{current_student.graduation_date}}</span></h6>
+          <h6> Graduation GPA: {{current_student.graduation_gpa}}</h6>
+          <h6> Time to Completion: <span id="date_between"></span></h6>
+          <button type="submit" id="finalize-student" data-toggle="modal" data-target="#finalize-modal" class="btn btn-lg btn-primary">Finalize</button>
+
+
+        </div>
+      </div>
+
+      <div class="row profile-row">
+        <div class="col-md-6 col-sm-12">
+          <h2> Add Follow-up </h2>
+          <hr>
+          <form class="form-signin" method=POST action="{{ url_for('add_followup')}}">
+            <div class="form-group">
+              <input type="text" class="form-control" name="student-followup-body" placeholder="Add follow-up" required></input>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student-followup-id" id="student_followup_id" value="{{current_student.student_id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary btn-block">Save</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-md-6 col-sm-12  student-file-upload">
+
+          <h2> Student Files </h2>
+          <hr>
+          <p>Upload a new file to student profile:</p>
+          <form>
+            <div class="form-group">
+              <input type="file" name="file" class="form-control-file" id="file-upload">
+              <button type="submit" class="btn btn-lg btn-primary">Upload</button>
+            </div>
+          </form>
+
+
+        </div>
+
+      </div>
+
+
+      <div class="row profile-row">
+        <div class="col-md-6 col-sm-12">
+          <h2> Notes </h2>
+          <hr>
+          <form class="form-signin" method=POST action="{{ url_for('add_note')}}">
+            <div class="form-group">
+              <textarea class="form-control" name="student-note" placeholder="Student note..." rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student-note-id" id="student_note_id" value="{{current_student.student_id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary btn-block">Add Note</button>
+            </div>
+          </form>
+
+
+          <div id="notes-list">
+            {% for note in current_student.notes %}
+              <div>
+                <p class="noteTimestamp">{{note.note_time}}</p>
+                <p class="noteBody"><i id="{{note.note_id}}" class="far fa-times-circle" onclick="getNote(this.id)"></i>&nbsp;&nbsp;&nbsp;{{note.note_body}}</p>
+                <hr>
+              </div>
+            {% endfor %}
+          </div>
+
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <h2> Approved Exceptions </h2>
+          <hr>
+          <form class="form-signin" method=POST action="{{ url_for('exceptions')}}">
+            <div class="form-group">
+              <textarea class="form-control" name="student-exception" placeholder="Exception to policy..." rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student-exception-id" id="student_exception_id" value="{{current_student.student_id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary btn-block">Add Exception</button>
+            </div>
+          </form>
+
+
+          <div id="exceptions-list">
+            {% for exception in current_student.exceptions %}
+            <p class="noteTimestamp">{{exception.exception_time}}
+              <p class="noteBody">{{exception.exception_body}}</p>
+              <hr> {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+  </main>
+
+  <footer>
+    <p>Copyright &copy; | Alec Down, 2018-2019</p>
+  </footer>
+
+  <!-- Change Major Modal-->
+  <div class="modal fade" id="major-modal" tabindex="-1" role="dialog" aria-labelledby="major-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change Major</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_major')}}">
+            <div class="form-group">
+              <label for="majorSelection">Major:</label>
+              <select class="form-control" id="majorSelection" name="update-major" required>
+                <option>Pre-Computer Engineering</option>
+                <option>Pre-Electrical Engineering</option>
+                <option>B.S. Computer Engineering</option>
+                <option>B.S. Electrical Engineering</option>
+                <option>Non-ECE Major</option>
+                <option>Prospective Student</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change standing modal-->
+  <div class="modal fade" id="standing-modal" tabindex="-1" role="dialog" aria-labelledby="standing-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change Standing</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_standing')}}">
+            <div class="form-group">
+              <label for="standingSelection">Standing:</label>
+              <select class="form-control" id="standingSelection" name="update-standing" required>
+                <option>Good Standing</option>
+                <option>Probation</option>
+                <option>Dismissed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="probation_date" placeholder="Date">
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="cum_gpa" placeholder="Cumulative GPA">
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="text" name="tech_gpa"  placeholder="Technical GPA">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change transfer modal-->
+  <div class="modal fade" id="transfer-modal" tabindex="-1" role="dialog" aria-labelledby="transfer-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Is the student a transfer student?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_transfer')}}">
+            <div class="form-group">
+              <label for="majorSelection">Transfer student?</label>
+              <select class="form-control" id="majorSelection" name="update-transfer" required>
+                <option>no</option>
+                <option>yes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change phone modal-->
+  <div class="modal fade" id="phone-modal" tabindex="-1" role="dialog" aria-labelledby="phone-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change Phone Number</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_phone')}}">
+            <div class="form-group">
+              <label for="majorSelection">Phone number:</label>
+              <div class="form-group">
+                <input class="form-control" name="update-phone" id="phone_number" value="{{current_student.phone}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change email modal-->
+  <div class="modal fade" id="email-modal" tabindex="-1" role="dialog" aria-labelledby="email-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change Email</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_email')}}">
+            <div class="form-group">
+              <label for="majorSelection">Email address:</label>
+              <div class="form-group">
+                <input class="form-control" name="update-email" id="email_address" value="{{current_student.email}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change uID modal-->
+  <div class="modal fade" id="uid-modal" tabindex="-1" role="dialog" aria-labelledby="uid-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change uID</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_uid')}}">
+            <div class="form-group">
+              <label for="majorSelection">uID:</label>
+              <div class="form-group">
+                <input class="form-control" name="update-uid" id="uid" value="{{current_student.student_id}}">
+              </div>
+            </div>
+            <div class="form-group">
+              <input class="form-control" name="student_major_id" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Change Direct Admit Status modal-->
+  <div class="modal fade" id="direct-modal" tabindex="-1" role="dialog" aria-labelledby="direct-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Change Direct Admit Status</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('update_direct')}}">
+            <div class="form-group">
+              <label for="direct">Direct Admit?</label>
+                <select class="form-control" id="direct" name="update-direct" required>
+                  <option>no</option>
+                  <option>yes</option>
+                </select>
+              </div>
+            <div class="form-group">
+              <input class="form-control" name="student_direct_admit" id="student_major_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-lg btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Delete Student modal-->
+  <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Delete Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('delete_student')}}">
+            <p> Are you sure you want to delete this student? This action is irrevocable and all data will be permanently lost. </p>
+            <div class="form-group">
+              <input class="form-control" name="student_delete" id="student_delete_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">No, go back.</button>
+              <button type="submit" class="btn btn-lg btn-primary">Yes, delete.</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Finalize-->
+  <div class="modal fade" id="finalize-modal" tabindex="-1" role="dialog" aria-labelledby="finalize-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Finalize Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+          <form class="form-signin" method=POST action="{{ url_for('finalize')}}">
+            <p> Finalizing this student will deactive her/his/their profile and log all completion data to the database.</p>
+            <p> Are you sure you want to proceed? </p>
+              <div class="form-group">
+                <label for="finalize-graduation">Standing:</label>
+                <input type="text" class="form-control" id="finalize-graduated" name="finalize-graduation" value="Graduated" disabled/>
+              </div>
+              <div class="form-group">
+              <label for="enrollment-date">Date of Enrollment:</label>
+                <input type="date" class="form-control" name="enrollment_date">
+              </div>
+              <div class="form-group">
+                <label for="student_cum_gpa">Graduation GPA:</label>
+
+                <input type="text" class="form-control" name="student_cum_gpa" id="student_cum_gpa">
+              </div>
+              <div class="form-group">
+                <label for="graduation-date">Date of Graduation:</label>
+
+                <input type="date" class="form-control" name="graduation_date">
+              </div>
+            <div class="form-group">
+              <input class="form-control" name="student_finalize" id="student_finalize_id" value="{{current_student._id}}">
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">No, go back.</button>
+              <button type="submit" class="btn btn-lg btn-primary">Yes, finalize.</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
+</body>
+
+</html>

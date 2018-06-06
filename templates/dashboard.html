@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>UtahSRM Dashboard</title>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">  <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/app.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/blocku_small.png') }}">
+  <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+</head>
+
+<body>
+  <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#"><img alt="UtahSRM" src="{{ url_for('static', filename='images/blocku.png') }}" height="50"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#u-nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-between" id="u-nav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/find_all">View Students</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/add-student">Add Student</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/permission_codes">Permission Codes</a>
+            </li>
+          </ul>
+
+
+        <a class="btn btn-primary btn-logout" href="/logout">Logout</a>
+</div>
+      </nav>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row nav-search">
+      <div class="search">
+        <form class="form-inline" method=POST action="{{ url_for('find_name')}}">
+          <div class="form-group">
+            <input type="text" class="form-control" id="name-input" name="name-input">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" type="submit">Find</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+    <h1>Dashboard</h1>
+    <p class="logged-in">Logged in as: {{session.username}} </p>
+    <hr>
+
+    <div class="row">
+      <div class="col-md-6">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div id="add-student-alert" class="alert alert-dark alert-dismissable fade show" role="alert">
+              {{message}}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+      {% endwith %}
+    </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-6 dash-col">
+          <h2> Advising Tasks </h2>
+        <form class="form-signin" method=POST action="{{ url_for('add_todo') }}">
+          <div class="form-group">
+            <label for="assigned-user">Assign to:</label>
+            <div class="row">
+              <div class="col">
+                <select class="form-control" name="assigned-user" id="assigned-user" required>
+                  <option>{{session.username}}</option>
+                  <option disabled>_________</option>
+                  {% for user in all_users %}
+                    <option>{{user["username"]}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col">
+                 <button type="submit" class="btn btn-lg btn-primary btn-block">Add Task</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="user-todo">Task:</label>
+            <textarea class="form-control" id="user-todo" name="user-todo" placeholder="Add task..." rows="3" required></textarea>
+          </div>
+        </form>
+
+        <div class="card" style="width: 18rem;">
+          <div class="card-header">
+            Advising To-do Items
+          </div>
+          <ul class="list-group list-group-flush">
+              {% for task in tasks %}
+                <li class="list-group-item"><i id="{{task['task-id']}}" class="far fa-times-circle" onclick="getTask(this.id)"></i>&nbsp;&nbsp;&nbsp;{{task["task-body"]}}</li>
+              {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6 dash-col">
+        <h2> Current Database Stats </h2>
+        <div class="card" style="width: 18rem;">
+          <div class="card-header">
+            Quick Stats
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Number of CE students: {{ce_majors}}</li>
+            <li class="list-group-item">Number of EE students: {{ee_majors}}</li>
+            <li class="list-group-item">Number of students on probation: {{probation_students}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <hr>
+  </main>
+
+  <footer>
+    <p>Copyright &copy; | Alec Down, 2018-2019</p>
+  </footer>
+
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
+
+
+</body>
+
+</html>

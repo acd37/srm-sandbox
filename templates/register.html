@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>UtahSRM Sign-in</title>
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+  <link rel="icon" href="{{ url_for('static', filename='images/blocku_small.png') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/app.css') }}">
+
+
+  <body id="register">
+    <main class="container">
+      <section class="login-page">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <img alt="UtahSRM" class="img-fluid logo" src="{{ url_for('static', filename='images/blocku.png') }}">
+          <h3>ECE Student Relationship Management</h3>
+            <p> The ECE Student Relationship Management portal is only available for University of Utah ECE staff. You must have a validation token in order to be able to register.
+              If you have not received a validation token, please contact your admin. </p>
+            <form class="form-signin" method=POST action="{{ url_for('register')}}">
+              <div class="form-group">
+              <label for="inputUser" class="sr-only">Username</label>
+              <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
+            </div>
+
+            <div class="form-group">
+              <label for="inputFirst" class="sr-only">First name</label>
+              <input type="text" name="first_name" class="form-control" placeholder="First name" required>
+            </div>
+              <div class="form-group">
+              <label for="inputLast" class="sr-only">Last name</label>
+              <input type="text" name="last_name" class="form-control" placeholder="Last name" required>
+            </div>
+            <div class="form-group">
+              <label for="inputEmail" class="sr-only">Email</label>
+              <input type="text" name="email" class="form-control" placeholder="Email" required>
+            </div>
+
+
+            <div class="form-group">
+              <label for="inputPassword" class="sr-only">Password</label>
+              <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+              <label for="inputEmail" class="sr-only">Validation Token</label>
+              <input type="password" name="token" class="form-control" placeholder="Validation token" required>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            </div>
+            </form>
+            <p> Already registered? <a href="/"> Go back. </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          {% with messages = get_flashed_messages() %} {% if messages %} {% for message in messages|reverse %}
+          <div id="add-student-alert" class="alert alert-dark alert-dismissable fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+          </div>
+          {% endfor %} {% endif %} {% endwith %}
+        </div>
+      </div>
+    </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/app.js') }}"></script>
+
+  </body>
+</html>
