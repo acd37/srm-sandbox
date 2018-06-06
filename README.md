@@ -7,6 +7,7 @@
 
 ## Technology
 * Python, Flask, MongoDB, Pymongo, CSS3, Bootstrap, HTML5
+* Live demo: https://srm-sandbox.herokuapp.com/
 
 ## About
 * StudentSRM is a lightweight CRM for managing student relationships between college-level students and academic advisors.
